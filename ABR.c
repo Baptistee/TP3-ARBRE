@@ -28,6 +28,10 @@
 
 #define MAX_VAL 500
 
+#define TAB_SIZE 10
+
+int globalcounter = 0;
+
 
 /*
 	L'ABR est représenté par avec un noeud de fin.
@@ -210,10 +214,46 @@ ABR_t create_nABR(int n)
 	procédure de parcours (remplissage d'un tableau}.
 */
 
-///void parcoursABR_infixe(ABR_t T, int* tab) // dans l'ordre croissant, i.e. parcours infixe.
+void parcoursABR_infixe(ABR_t T, int* tab) // dans l'ordre croissant, i.e. parcours infixe.
+{
+	if (T)
+	{
+		if (T->gauche)
+		{
+			parcoursABR_infixe(T->gauche, tab);
+		}
+
+		printf("%d -> ", T->val);
+		tab[globalcounter] = T->val;
+		globalcounter++;
+
+		if (T->droite)
+		{
+			parcoursABR_infixe(T->droite, tab);
+		}
+	}
+}
 
 
-///void parcoursABR_infixe_inverse(ABR_t T, int* tab) // dans l'ordre croissant, i.e. parcours infixe.
+void parcoursABR_infixe_inverse(ABR_t T, int* tab) // dans l'ordre croissant, i.e. parcours infixe.
+{
+	if (T)
+	{
+		if (T->gauche)
+		{
+			parcoursABR_infixe_inverse(T->droite, tab);
+		}
+
+		printf("%d -> ", T->val);
+		tab[globalcounter] = T->val;
+		globalcounter++;
+
+		if (T->droite)
+		{
+			parcoursABR_infixe_inverse(T->gauche, tab);
+		}
+	}
+}
 
 
 
@@ -222,22 +262,83 @@ ABR_t create_nABR(int n)
 	Fonction de recherche d'un noeud dans l'ABR.
 */
 
-///node_t * minABR(ABR_t T)
+node_t* minABR(ABR_t T)
+{
+	node_t* ptr = T;
+
+	while (ptr)
+	{
+		if (!ptr->gauche)
+		{
+			break;
+		}
+
+		ptr = ptr->gauche;
+	}
+
+	return ptr;
+}
+
+node_t* maxABR(ABR_t T)
+{
+	node_t* ptr = T;
+
+	while (ptr)
+	{
+		if (!ptr->droite)
+		{
+			break;
+		}
+
+		ptr = ptr->droite;
+	}
+
+	return ptr;
+}
 
 
+node_t* previousABR(node_t* x) //prédécesseur
+{
+	node_t* ptr = x;
 
-///node_t * maxABR(ABR_t T)
+	while (ptr)
+	{
+		if (!ptr->gauche)
+		{
+			break;
+		}
 
+		ptr = ptr->gauche;
+	}
 
-///node_t * previousABR(node_t * x) //prédécesseur
+	return ptr;
+}
 
+node_t* nextABR(node_t* x) // successeur
+{
+	node_t* ptr = x;
 
+	while (ptr)
+	{
+		if (!ptr->droite)
+		{
+			break;
+		}
 
-///node_t * nextABR(node_t * x) // successeur
+		ptr = ptr->droite;
+	}
 
-///node_t * search_in_ABR(int k,ABR_t T) // recherche d'un élément quelconque - récursif
+	return ptr;
+}
 
-///node_t * search_in_ABR_it(int k,ABR_t T) // recherche d'un élément quelconque - récursif
+node_t* search_in_ABR(int k, ABR_t T) // recherche d'un élément quelconque - récursif
+{
+	node_t* ptr = NULL;
+
+	return ptr;
+}
+
+///node_t * search_in_ABR_it(int k,ABR_t T) // recherche d'un élément quelconque - itératif
 
 
 /*
@@ -325,16 +426,27 @@ int main(){
 	afficheABR_infixe_inverse(T);
 
 	printf("\n AJOUT \n");
-	T = insert_in_ABR(2, T);
-	T = insert_in_ABR(4, T);
-	T = insert_in_ABR(9, T);
+	//T = insert_in_ABR(2, T);
+	//T = insert_in_ABR(4, T);
+	//T = insert_in_ABR(9, T);
 
 	printf("\n INFIXE \n");
 	afficheABR_infixe(T);
 
 	printf("\n CREATE ARBRE \n");
-	T = create_nABR(3);
+	//T = create_nABR(10);
 	afficheABR_infixe(T);
+
+	printf("\n PARCOURS ARBRE \n");
+	int* tab = (int*)malloc(TAB_SIZE * sizeof(int));
+	globalcounter = 0;
+	parcoursABR_infixe(T, tab);
+
+	printf("\n MINIMUM ARBRE : %d \n", minABR(T)->val);
+	printf("\n MAXIMUM ARBRE : %d \n", maxABR(T)->val);
+
+	printf("\n PREVIOUS NODE : %d \n", previousABR(d)->val);
+	printf("\n LAST     NODE : %d \n", nextABR(d)->val);
 
 	printf("\n \n TERMINE \n");
 
