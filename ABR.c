@@ -22,6 +22,7 @@
 #include <stdio.h>
 #include <time.h>
 #include <stdint.h>
+#include <string.h>
 
 #define SIZE 10	
 #define INFINITE 10000
@@ -47,6 +48,34 @@ struct node
 typedef struct node node_t;
 
 typedef struct node * ABR_t;
+
+
+/*
+	Recuperer pere noeud pour dictionnaire.
+*/
+
+node_t* previous_node(node_t* z, ABR_t T)
+{
+	node_t* ptr = T;
+
+	node_t* previous = NULL;
+
+	while (ptr->val != z->val)
+	{
+		if (ptr->val < z->val)
+		{
+			previous = ptr;
+			ptr = ptr->droite;
+		}
+		else if (ptr->val > z->val)
+		{
+			previous = ptr;
+			ptr = ptr->gauche;
+		}
+	}
+
+	return previous;
+}
 
 /*
 	Procédures d'affichage et parcours.
@@ -283,14 +312,17 @@ node_t* maxABR(ABR_t T)
 {
 	node_t* ptr = T;
 
-	while (ptr)
+	if (ptr != NULL)
 	{
-		if (!ptr->droite)
+		while (ptr)
 		{
-			break;
-		}
+			if (!ptr->droite)
+			{
+				break;
+			}
 
-		ptr = ptr->droite;
+			ptr = ptr->droite;
+		}
 	}
 
 	return ptr;
@@ -333,12 +365,40 @@ node_t* nextABR(node_t* x) // successeur
 
 node_t* search_in_ABR(int k, ABR_t T) // recherche d'un élément quelconque - récursif
 {
-	node_t* ptr = NULL;
+	if (T->val == k)
+	{
+		node_t* val;
+		val = T;
+		return val;
+	}
+	else if (T->val > k)
+	{
+		search_in_ABR(k, T->gauche);
+	}
+	else
+	{
+		search_in_ABR(k, T->droite);
+	}
+}
+
+node_t* search_in_ABR_it(int k, ABR_t T) // recherche d'un élément quelconque - itératif
+{
+	node_t* ptr = T;
+
+	while (ptr->val != k)
+	{
+		if (ptr->val < k)
+		{
+			ptr = ptr->droite;
+		}
+		else if (ptr->val > k)
+		{
+			ptr = ptr->gauche;
+		}
+	}
 
 	return ptr;
 }
-
-///node_t * search_in_ABR_it(int k,ABR_t T) // recherche d'un élément quelconque - itératif
 
 
 /*
@@ -352,7 +412,62 @@ node_t* search_in_ABR(int k, ABR_t T) // recherche d'un élément quelconque - r
 	Fonction de suppression d'un noeud dans l'ABR.
 */
 
-///ABR_t delete_in_ABR(node_t * z, ABR_t T)
+ABR_t delete_in_ABR(node_t* z, ABR_t T)
+{
+	node_t* previous = NULL;
+
+	node_t* direction = NULL;
+
+	node_t* ptr = T;
+
+	previous = previous_node(z, T);
+
+	if (T == z) // Si tete de l'arbre.
+	{
+		direction = maxABR(z->gauche);
+
+		ptr = previous_node(direction, T);
+
+		direction->droite = z->droite;
+		direction->gauche = z->gauche;
+
+		ptr->droite = NULL;
+
+		T = direction;
+	}
+
+	else if (previous->val < z->val) // si a droite de l'arbre.
+	{
+		if ((z->droite == NULL) && (z->gauche == NULL))
+		{
+			previous->droite = NULL;
+		}
+		else
+		{
+			previous->droite = z->gauche;
+			direction = maxABR(z->gauche);
+			direction->droite = z->droite;
+		}
+	}
+
+	else // sinon a gauche de l'arbre.
+	{
+		if ((z->droite == NULL) && (z->gauche == NULL))
+		{
+			previous->gauche = NULL;
+		}
+		else
+		{
+			previous->gauche = z->droite;
+			direction = minABR(z->droite);
+			direction->gauche = z->gauche;
+		}
+	}
+
+	free(z);
+
+	return T;
+}
 
 
 
@@ -361,8 +476,13 @@ node_t* search_in_ABR(int k, ABR_t T) // recherche d'un élément quelconque - r
 	Fonction de destruction d'un ABR.
 */
 
-///void delete_ABR(ABR_t T)
-
+void delete_ABR(ABR_t T)
+{
+	while (T != NULL)
+	{
+		delete_in_ABR(T, T);
+	}
+}
 
 
 /********************
@@ -383,6 +503,12 @@ int main(){
 	node_t* d = (node_t*)malloc(sizeof(node_t));
 	node_t* e = (node_t*)malloc(sizeof(node_t));
 	node_t* f = (node_t*)malloc(sizeof(node_t));
+	node_t* g = (node_t*)malloc(sizeof(node_t));
+	node_t* h = (node_t*)malloc(sizeof(node_t));
+	node_t* m = (node_t*)malloc(sizeof(node_t));
+	node_t* n = (node_t*)malloc(sizeof(node_t));
+	node_t* o = (node_t*)malloc(sizeof(node_t));
+	node_t* p = (node_t*)malloc(sizeof(node_t));
 
 	ABR_t T,T1;
 	
@@ -392,6 +518,12 @@ int main(){
 	d->val = 8;
 	e->val = 12;
 	f->val = 20;
+	g->val = 11;
+	h->val = 13;
+	m->val = 21;
+	n->val = 14;
+	o->val = 6;
+	p->val = 9;
 
 	a->droite = c;
 	a->gauche = b;
@@ -402,14 +534,32 @@ int main(){
 	c->droite = f;
 	c->gauche = e;
 
-	d->droite = NULL;
-	d->gauche = NULL;
+	d->droite = p;
+	d->gauche = o;
 
-	e->droite = NULL;
-	e->gauche = NULL;
+	e->droite = h;
+	e->gauche = g;
 
-	f->droite = NULL;
+	f->droite = m;
 	f->gauche = NULL;
+
+	g->droite = NULL;
+	g->gauche = NULL;
+
+	h->droite = n;
+	h->gauche = NULL;
+
+	m->droite = NULL;
+	m->gauche = NULL;
+
+	n->droite = NULL;
+	n->gauche = NULL;
+
+	p->droite = NULL;
+	p->gauche = NULL;
+
+	o->droite = NULL;
+	o->gauche = NULL;
 
 	T = a;
 
@@ -447,6 +597,17 @@ int main(){
 
 	printf("\n PREVIOUS NODE : %d \n", previousABR(d)->val);
 	printf("\n LAST     NODE : %d \n", nextABR(d)->val);
+
+	printf("\n %d recherche \n", search_in_ABR(12, T)->val);
+	printf("\n %d recherche_it \n", search_in_ABR_it(12, T)->val);
+
+	T = delete_in_ABR(search_in_ABR_it(10, T), T);
+
+	afficheABR_infixe(T);
+
+	delete_ABR(T);
+
+	afficheABR_infixe(T);
 
 	printf("\n \n TERMINE \n");
 
