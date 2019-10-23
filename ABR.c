@@ -316,7 +316,7 @@ node_t* maxABR(ABR_t T)
 	{
 		while (ptr)
 		{
-			if (!ptr->droite)
+			if (ptr->droite == NULL)
 			{
 				break;
 			}
