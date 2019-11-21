@@ -605,9 +605,9 @@ int main(){
 
 	afficheABR_infixe(T);
 
-	delete_ABR(T);
+	//delete_ABR(T);
 
-	afficheABR_infixe(T);
+	//afficheABR_infixe(T);
 
 	printf("\n \n TERMINE \n");
 
